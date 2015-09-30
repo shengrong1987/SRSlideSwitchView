@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-@objc protocol SlideSwitchViewDelegate{
+@objc public protocol SRSlideSwitchViewDelegate{
     
     /*!
     * @method 顶部tab个数
@@ -18,7 +18,7 @@ import UIKit
     * @param 本控件
     * @result tab个数
     */
-    func numberOfTab(view:SlideSwitchView) -> Int
+    func numberOfTab(view:SRSlideSwitchView) -> Int
     /*!
     * @method 每个tab所属的viewController
     * @abstract
@@ -26,7 +26,7 @@ import UIKit
     * @param tab索引
     * @result viewController
     */
-    func slideSwitchView(view:SlideSwitchView, viewOfTab:Int) -> UIViewController
+    func slideSwitchView(view:SRSlideSwitchView, viewOfTab:Int) -> UIViewController
     /*!
     * @method 滑动左边界时传递手势
     * @abstract
@@ -34,7 +34,7 @@ import UIKit
     * @param   手势
     * @result
     */
-    optional func slideSwitchView(view:SlideSwitchView, panLeftParam:UIPanGestureRecognizer)
+    optional func slideSwitchView(view:SRSlideSwitchView, panLeftParam:UIPanGestureRecognizer)
     /*!
     * @method 滑动右边界时传递手势
     * @abstract
@@ -42,7 +42,7 @@ import UIKit
     * @param   手势
     * @result
     */
-    optional func slideSwitchView(view:SlideSwitchView, panRightParam:UIPanGestureRecognizer)
+    optional func slideSwitchView(view:SRSlideSwitchView, panRightParam:UIPanGestureRecognizer)
     /*!
     * @method 点击tab
     * @abstract
@@ -50,15 +50,15 @@ import UIKit
     * @param tab索引
     * @result
     */
-    optional func slideSwitchView(view:SlideSwitchView, didSelectTab:Int)
+    optional func slideSwitchView(view:SRSlideSwitchView, didSelectTab:Int)
 }
 
-enum SlideViewStyle{
+enum SRSlideViewStyle{
     case Default
     case Tabbar
 }
 
-class SlideSwitchView: UIView, UIScrollViewDelegate {
+@objc public class SRSlideSwitchView: UIView, UIScrollViewDelegate {
 
     var topScrollView : UIScrollView!
     var rootScrollView : UIScrollView!
@@ -66,30 +66,30 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     var userContentOffsetX : CGFloat
     var viewArray : Array<AnyObject>
     var kHeightOfTopScrollView:CGFloat = 45.0
-    var slideSwitchViewDelegate : SlideSwitchViewDelegate!
+    public var slideSwitchViewDelegate : SRSlideSwitchViewDelegate!
     
-    var tabBarIsShow : Bool = true
-    var isLeftScroll : Bool = false                         //是否左滑动
-    var isRootScroll : Bool = false                         //是否主视图滑动
-    var isBuildUI : Bool = false                            //是否建立了ui
+    public var tabBarIsShow : Bool = true
+    public var isLeftScroll : Bool = false                         //是否左滑动
+    public var isRootScroll : Bool = false                         //是否主视图滑动
+    public var isBuildUI : Bool = false                            //是否建立了ui
     
-    var shadowImageView : UIImageView?
-    var shadowImage : UIImage?
-    var tabItemNormalColor : UIColor?
-    var tabItemSelectedColor : UIColor?
-    var tabItemNormalBackgroundImage : UIImage?
-    var tabItemSelectedBackgroundImage : UIImage?
+    public var shadowImageView : UIImageView?
+    public var shadowImage : UIImage?
+    public var tabItemNormalColor : UIColor?
+    public var tabItemSelectedColor : UIColor?
+    public var tabItemNormalBackgroundImage : UIImage?
+    public var tabItemSelectedBackgroundImage : UIImage?
     
-    var rightSideButton : UIButton?{
+    public var rightSideButton : UIButton?{
         didSet {
-            let button:UIButton? = self.viewWithTag(SlideSwitchView.kTagOfRightSideButton) as? UIButton
+            let button:UIButton? = self.viewWithTag(SRSlideSwitchView.kTagOfRightSideButton) as? UIButton
             button?.removeFromSuperview()
-            rightSideButton!.tag = SlideSwitchView.kTagOfRightSideButton
+            rightSideButton!.tag = SRSlideSwitchView.kTagOfRightSideButton
             self.addSubview(rightSideButton!)
         }
     }
     
-    static let kWidthOfButtonMargin : CGFloat = 30.0
+    static let kWidthOfButtonMargin : CGFloat = 15.0
     static let kFontSizeOfTabButton = 15.0
     static let kTagOfRightSideButton = 999
     static let buttonWidth : CGFloat = 85
@@ -97,7 +97,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     static let marginTop : CGFloat = 5
     
     
-    required init?(coder aDecoder: NSCoder) {
+    required public init?(coder aDecoder: NSCoder) {
         viewArray = []
         isBuildUI = false
         userSelectedChannelID = 100
@@ -116,7 +116,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     func initUIValues(){
         if(self.tabBarIsShow){
             //创建顶部可滑动的tab
-            topScrollView = UIScrollView(frame: CGRectMake(0, SlideSwitchView.marginTop, self.bounds.size.width, kHeightOfTopScrollView))
+            topScrollView = UIScrollView(frame: CGRectMake(0, SRSlideSwitchView.marginTop, self.bounds.size.width, kHeightOfTopScrollView))
             topScrollView.delegate = self
             topScrollView.backgroundColor = UIColor.lightTextColor()
             topScrollView.pagingEnabled = false
@@ -127,7 +127,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
         }
         
         //创建主滚动视图
-        rootScrollView = UIScrollView(frame: CGRectMake(0, kHeightOfTopScrollView + SlideSwitchView.marginTop, self.bounds.size.width, self.bounds.size.height - kHeightOfTopScrollView - SlideSwitchView.marginTop))
+        rootScrollView = UIScrollView(frame: CGRectMake(0, kHeightOfTopScrollView + SRSlideSwitchView.marginTop, self.bounds.size.width, self.bounds.size.height - kHeightOfTopScrollView - SRSlideSwitchView.marginTop))
         rootScrollView.delegate = self
         rootScrollView.pagingEnabled = true
         rootScrollView.userInteractionEnabled = true
@@ -153,7 +153,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     }
     
     //当横竖屏切换时可通过此方法调整布局
-    override func layoutSubviews()
+    override public func layoutSubviews()
     {
         //创建完子视图UI才需要调整布局
         if (isBuildUI) {
@@ -163,7 +163,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
                     rightSideButton.frame = CGRectMake(self.bounds.size.width - rightSideButton.bounds.size.width, 0,
                         rightSideButton.bounds.size.width, topScrollView.bounds.size.height);
                     
-                    topScrollView.frame = CGRectMake(0, SlideSwitchView.marginTop,
+                    topScrollView.frame = CGRectMake(0, SRSlideSwitchView.marginTop,
                         self.bounds.size.width - rightSideButton.bounds.size.width, kHeightOfTopScrollView);
                 }
             }
@@ -194,7 +194,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     * @param
     * @result
     */
-    func buildUI()
+    public func buildUI()
     {
         initValues()
         initUIValues()
@@ -232,8 +232,8 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
         }
     
         //顶部tabbar的总长度
-        var topScrollViewContentWidth : CGFloat = CGFloat(SlideSwitchView.kWidthOfButtonMargin)
-        var xOffset: CGFloat = CGFloat(SlideSwitchView.kWidthOfButtonMargin)
+        var topScrollViewContentWidth : CGFloat = CGFloat(SRSlideSwitchView.kWidthOfButtonMargin)
+        var xOffset: CGFloat = CGFloat(SRSlideSwitchView.kWidthOfButtonMargin)
         
         //每个tab偏移量
         for (var i = 0; i < viewArray.count; i++) {
@@ -245,17 +245,17 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
             
 //            let textSize : CGSize = attrString.boundingRectWithSize(CGSizeMake(topScrollView.bounds.size.width, kHeightOfTopScrollView), options: NSStringDrawingOptions.UsesLineFragmentOrigin, context: nil).size
             
-            let textSize : CGSize = CGSizeMake(SlideSwitchView.buttonWidth, SlideSwitchView.buttonHeight)
+            let textSize : CGSize = CGSizeMake(SRSlideSwitchView.buttonWidth, SRSlideSwitchView.buttonHeight)
 
             //累计每个tab文字的长度
-            topScrollViewContentWidth += CGFloat(SlideSwitchView.kWidthOfButtonMargin) + textSize.width
+            topScrollViewContentWidth += CGFloat(SRSlideSwitchView.kWidthOfButtonMargin) + textSize.width
             //设置按钮尺寸
             button.frame = CGRectMake(xOffset, 0, textSize.width, kHeightOfTopScrollView)
             //计算下一个tab的x偏移量
-            xOffset += textSize.width + CGFloat(SlideSwitchView.kWidthOfButtonMargin)
+            xOffset += textSize.width + CGFloat(SRSlideSwitchView.kWidthOfButtonMargin)
             button.tag = i + 100
             button.setTitle(vc.title, forState: .Normal)
-            button.titleLabel?.font = UIFont.systemFontOfSize(CGFloat(SlideSwitchView.kFontSizeOfTabButton))
+            button.titleLabel?.font = UIFont.systemFontOfSize(CGFloat(SRSlideSwitchView.kFontSizeOfTabButton))
             button.setTitleColor(tabItemNormalColor, forState: .Normal)
             button.setTitleColor(tabItemSelectedColor, forState: .Selected)
             button.setBackgroundImage(tabItemNormalBackgroundImage, forState: .Normal)
@@ -263,7 +263,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
             button.addTarget(self, action: "selectNameButton:", forControlEvents: .TouchUpInside)
             if i == 0 {
                 if let shadowImageView = self.shadowImageView{
-                    shadowImageView.frame = CGRectMake(CGFloat(SlideSwitchView.kWidthOfButtonMargin), 0, textSize.width, shadowImage!.size.height)
+                    shadowImageView.frame = CGRectMake(CGFloat(SRSlideSwitchView.kWidthOfButtonMargin), 0, textSize.width, shadowImage!.size.height)
                     button.selected = true
                 }
             }
@@ -334,19 +334,19 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
         let screenWidth = UIScreen.mainScreen().bounds.width
         if let nxtButton = nextButton {
             if (nxtButton.frame.origin.x - topScrollView.contentOffset.x + nxtButton.frame.size.width) > screenWidth {
-                topScrollView.setContentOffset(CGPointMake(-screenWidth + SlideSwitchView.kWidthOfButtonMargin + (nxtButton.frame.origin.x + nxtButton.frame.size.width), 0), animated: true)
+                topScrollView.setContentOffset(CGPointMake(-screenWidth + SRSlideSwitchView.kWidthOfButtonMargin + (nxtButton.frame.origin.x + nxtButton.frame.size.width), 0), animated: true)
             }
         }
         
         if let lstButton = lastButton {
-            if lstButton.frame.origin.x + SlideSwitchView.kWidthOfButtonMargin - topScrollView.contentOffset.x < 0 {
-                topScrollView.setContentOffset(CGPointMake(lstButton.frame.origin.x - SlideSwitchView.kWidthOfButtonMargin , 0), animated: true)
+            if lstButton.frame.origin.x + SRSlideSwitchView.kWidthOfButtonMargin - topScrollView.contentOffset.x < 0 {
+                topScrollView.setContentOffset(CGPointMake(lstButton.frame.origin.x - SRSlideSwitchView.kWidthOfButtonMargin , 0), animated: true)
             }
         }
     }
     
     //滚动视图开始时
-    func scrollViewWillBeginDragging(scrollView:UIScrollView)
+    public func scrollViewWillBeginDragging(scrollView:UIScrollView)
     {
         if scrollView == rootScrollView {
             userContentOffsetX = scrollView.contentOffset.x
@@ -354,7 +354,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     }
     
     //滚动视图结束
-    func scrollViewDidScroll(scrollView : UIScrollView)
+    public func scrollViewDidScroll(scrollView : UIScrollView)
     {
         if scrollView == rootScrollView {
             //判断用户是否左滚动还是右滚动
@@ -368,7 +368,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
     }
     
     //滚动视图释放滚动
-    func scrollViewDidEndDecelerating(scrollView:UIScrollView)
+    public func scrollViewDidEndDecelerating(scrollView:UIScrollView)
     {
         if scrollView == rootScrollView {
             isRootScroll = true
@@ -416,7 +416,7 @@ class SlideSwitchView: UIView, UIScrollViewDelegate {
         return result
     }
     
-    func setTabBarStyle(style:SlideViewStyle)
+    func setTabBarStyle(style:SRSlideViewStyle)
     {
         switch (style) {
             case .Default: break
