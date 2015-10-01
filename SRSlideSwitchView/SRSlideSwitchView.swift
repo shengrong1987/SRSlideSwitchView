@@ -332,15 +332,27 @@ enum SRSlideViewStyle{
         let nextButton : UIButton? = self.viewWithTag(sender.tag + 1) as? UIButton
         let lastButton : UIButton? = self.viewWithTag(sender.tag - 1) as? UIButton
         let screenWidth = UIScreen.mainScreen().bounds.width
+        var buttonAbsX = sender.frame.origin.x - topScrollView.contentOffset.x
+        var buttonWidth = sender.frame.width
+        if buttonAbsX < 0 {
+            topScrollView.setContentOffset(CGPointMake(buttonAbsX - SRSlideSwitchView.kWidthOfButtonMargin + topScrollView.contentOffset.x, 0), animated: true)
+        }
+        if buttonAbsX + sender.frame.width > screenWidth{
+            topScrollView.setContentOffset(CGPointMake(buttonAbsX + buttonWidth - screenWidth + SRSlideSwitchView.kWidthOfButtonMargin, 0), animated: true)
+        }
         if let nxtButton = nextButton {
-            if (nxtButton.frame.origin.x - topScrollView.contentOffset.x + nxtButton.frame.size.width) > screenWidth {
-                topScrollView.setContentOffset(CGPointMake(-screenWidth + SRSlideSwitchView.kWidthOfButtonMargin + (nxtButton.frame.origin.x + nxtButton.frame.size.width), 0), animated: true)
+            buttonWidth = nxtButton.frame.width
+            buttonAbsX = nxtButton.frame.origin.x - topScrollView.contentOffset.x
+            if buttonAbsX + nxtButton.frame.width > screenWidth {
+                topScrollView.setContentOffset(CGPointMake(buttonAbsX + buttonWidth - screenWidth + SRSlideSwitchView.kWidthOfButtonMargin, 0), animated: true)
             }
         }
         
         if let lstButton = lastButton {
-            if lstButton.frame.origin.x + SRSlideSwitchView.kWidthOfButtonMargin - topScrollView.contentOffset.x < 0 {
-                topScrollView.setContentOffset(CGPointMake(lstButton.frame.origin.x - SRSlideSwitchView.kWidthOfButtonMargin , 0), animated: true)
+            buttonWidth = lstButton.frame.width
+            buttonAbsX = lstButton.frame.origin.x - topScrollView.contentOffset.x
+            if buttonAbsX < 0 {
+                topScrollView.setContentOffset(CGPointMake(buttonAbsX - SRSlideSwitchView.kWidthOfButtonMargin + topScrollView.contentOffset.x, 0), animated: true)
             }
         }
     }
